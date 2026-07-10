@@ -29,41 +29,33 @@ const TimerModule = (() => {
       const gain = ctx.createGain();
       osc.connect(gain);
       gain.connect(ctx.destination);
-      osc.type = 'square';
-      osc.frequency.value = urgent ? 900 : 660;
-      gain.gain.setValueAtTime(0.18, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+      osc.type = 'sine';
+      osc.frequency.value = urgent ? 1000 : 800;
+      gain.gain.setValueAtTime(urgent ? 0.15 : 0.1, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
       osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.09);
+      osc.stop(ctx.currentTime + 0.04);
     } catch (e) { /* audio not critical */ }
   }
 
   function playBuzz() {
     try {
       const ctx = resumeCtx();
-      // Low buzzing sound
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = 'sawtooth';
-      osc.frequency.value = 120;
-      gain.gain.setValueAtTime(0.35, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.9);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.95);
-
-      // Second harmonic for richness
-      const osc2 = ctx.createOscillator();
-      const gain2 = ctx.createGain();
-      osc2.connect(gain2);
-      gain2.connect(ctx.destination);
-      osc2.type = 'square';
-      osc2.frequency.value = 90;
-      gain2.gain.setValueAtTime(0.25, ctx.currentTime);
-      gain2.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.9);
-      osc2.start(ctx.currentTime);
-      osc2.stop(ctx.currentTime + 0.95);
+      // מרימבה יורדת — game over עדין
+      const notes = [523, 392, 330, 262]; // C5 → G4 → E4 → C4
+      notes.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const t = ctx.currentTime + i * 0.15;
+        gain.gain.setValueAtTime(0.28, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+        osc.start(t);
+        osc.stop(t + 0.15);
+      });
     } catch (e) { /* audio not critical */ }
   }
 
@@ -107,12 +99,11 @@ const TimerModule = (() => {
     return remaining;
   }
 
-  // Warm up audio context on first user interaction
+  // מרימבה עולה עדינה — ✅ נוחש
   function playSuccess() {
     try {
       const ctx = resumeCtx();
-      // Rising arpeggio — "ding" positive feel
-      const notes = [523, 659, 784]; // C5, E5, G5
+      const notes = [392, 494, 587]; // G4 → B4 → D5
       notes.forEach((freq, i) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -121,32 +112,31 @@ const TimerModule = (() => {
         osc.type = 'sine';
         osc.frequency.value = freq;
         const t = ctx.currentTime + i * 0.09;
-        gain.gain.setValueAtTime(0, t);
-        gain.gain.linearRampToValueAtTime(0.32, t + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+        gain.gain.setValueAtTime(0.28, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
         osc.start(t);
-        osc.stop(t + 0.25);
+        osc.stop(t + 0.09);
       });
     } catch (e) { /* audio not critical */ }
   }
 
+  // מרימבה יורדת עדינה — ❌ דלג
   function playSkip() {
     try {
       const ctx = resumeCtx();
-      // Descending buzz — "thud" negative feel
-      const notes = [320, 220];
+      const notes = [294, 220]; // D4 → A3
       notes.forEach((freq, i) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.connect(gain);
         gain.connect(ctx.destination);
-        osc.type = 'sawtooth';
+        osc.type = 'sine';
         osc.frequency.value = freq;
-        const t = ctx.currentTime + i * 0.1;
-        gain.gain.setValueAtTime(0.28, t);
-        gain.gain.linearRampToValueAtTime(0, t + 0.18);
+        const t = ctx.currentTime + i * 0.11;
+        gain.gain.setValueAtTime(0.22, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
         osc.start(t);
-        osc.stop(t + 0.2);
+        osc.stop(t + 0.11);
       });
     } catch (e) { /* audio not critical */ }
   }
