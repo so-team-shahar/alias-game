@@ -108,9 +108,53 @@ const TimerModule = (() => {
   }
 
   // Warm up audio context on first user interaction
+  function playSuccess() {
+    try {
+      const ctx = resumeCtx();
+      // Rising arpeggio — "ding" positive feel
+      const notes = [523, 659, 784]; // C5, E5, G5
+      notes.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const t = ctx.currentTime + i * 0.09;
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.32, t + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+        osc.start(t);
+        osc.stop(t + 0.25);
+      });
+    } catch (e) { /* audio not critical */ }
+  }
+
+  function playSkip() {
+    try {
+      const ctx = resumeCtx();
+      // Descending buzz — "thud" negative feel
+      const notes = [320, 220];
+      notes.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sawtooth';
+        osc.frequency.value = freq;
+        const t = ctx.currentTime + i * 0.1;
+        gain.gain.setValueAtTime(0.28, t);
+        gain.gain.linearRampToValueAtTime(0, t + 0.18);
+        osc.start(t);
+        osc.stop(t + 0.2);
+      });
+    } catch (e) { /* audio not critical */ }
+  }
+
+  // Warm up audio context on first user interaction
   function warmUp() {
     getAudioCtx();
   }
 
-  return { start, stop, getRemaining, warmUp, playTick, playBuzz };
+  return { start, stop, getRemaining, warmUp, playTick, playBuzz, playSuccess, playSkip };
 })();

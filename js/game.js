@@ -112,6 +112,20 @@ const Game = (() => {
     };
   }
 
+  function restartRound() {
+    // Return consumed words to the pool
+    state.round.words.forEach(w => {
+      state.usedWords.delete(w.word);
+      state.wordPool.push(w.word);
+    });
+    // Re-shuffle pool
+    for (let i = state.wordPool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [state.wordPool[i], state.wordPool[j]] = [state.wordPool[j], state.wordPool[i]];
+    }
+    state.round = { correct: 0, wrong: 0, words: [] };
+  }
+
   function getState() { return state; }
 
   function getRoundScore() {
@@ -127,6 +141,7 @@ const Game = (() => {
     nextWord,
     consumeWord,
     endRound,
+    restartRound,
     getRoundScore,
     getState
   };
@@ -276,6 +291,7 @@ const UI = (() => {
 
   function onCorrect() {
     if (!currentWord) return;
+    TimerModule.playSuccess();
     Game.consumeWord(currentWord, 'correct');
     turnCorrect++;
     updateScoreTicker();
@@ -284,10 +300,26 @@ const UI = (() => {
 
   function onWrong() {
     if (!currentWord) return;
+    TimerModule.playSkip();
     Game.consumeWord(currentWord, 'wrong');
     turnWrong++;
     updateScoreTicker();
     nextWordUI();
+  }
+
+  function restartTurn() {
+    TimerModule.stop();
+    Game.restartRound();
+    turnCorrect = 0;
+    turnWrong = 0;
+    updateScoreTicker();
+    currentWord = Game.nextWord();
+    document.getElementById('current-word').textContent = currentWord;
+    resetTimerUI();
+    TimerModule.start(
+      (t) => updateTimerUI(t),
+      () => onTimeUp()
+    );
   }
 
   function nextWordUI() {
@@ -352,6 +384,57 @@ const UI = (() => {
     }
   }
 
+  // ===== EDIT PLAYERS MODAL =====
+  function openEditPlayers() {
+    const gs = Game.getState();
+    const modal = document.getElementById('modal-edit-players');
+    renderModalPlayers(0);
+    renderModalPlayers(1);
+    modal.classList.add('open');
+  }
+
+  function closeEditPlayers() {
+    document.getElementById('modal-edit-players').classList.remove('open');
+  }
+
+  function renderModalPlayers(teamIdx) {
+    const gs = Game.getState();
+    const team = gs.teams[teamIdx];
+    const explainer = gs.currentExplainer;
+    // After endRound, currentTeamIndex already rotated; the team that just played is the opposite
+    const justPlayedIdx = gs.currentTeamIndex === 0 ? 1 : 0;
+
+    document.getElementById(`modal-team${teamIdx}-name`).textContent = team.name;
+    const list = document.getElementById(`modal-players-${teamIdx}`);
+    list.innerHTML = '';
+    team.players.forEach((p, i) => {
+      const isProtected = (teamIdx === justPlayedIdx && p === explainer);
+      const row = document.createElement('div');
+      row.className = 'modal-player-row';
+      row.innerHTML = `
+        <span>${p}${isProtected ? ' <small style="color:var(--text-muted);">(מסביר)</small>' : ''}</span>
+        ${!isProtected ? `<button onclick="UI.removePlayerInGame(${teamIdx}, ${i})">✕</button>` : '<span></span>'}
+      `;
+      list.appendChild(row);
+    });
+  }
+
+  function addPlayerInGame(teamIdx) {
+    const input = document.getElementById(`modal-add-${teamIdx}`);
+    const name = input.value.trim();
+    if (!name) return;
+    const gs = Game.getState();
+    gs.teams[teamIdx].players.push(name);
+    input.value = '';
+    renderModalPlayers(teamIdx);
+  }
+
+  function removePlayerInGame(teamIdx, playerIdx) {
+    const gs = Game.getState();
+    gs.teams[teamIdx].players.splice(playerIdx, 1);
+    renderModalPlayers(teamIdx);
+  }
+
   // ===== WIN SCREEN =====
   function showWin() {
     const winner = Game.getState().winner;
@@ -393,6 +476,11 @@ const UI = (() => {
     startTurn,
     onCorrect,
     onWrong,
+    restartTurn,
+    openEditPlayers,
+    closeEditPlayers,
+    addPlayerInGame,
+    removePlayerInGame,
     showWin,
     resetGame
   };

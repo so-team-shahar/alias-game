@@ -107,6 +107,13 @@
       <div id="current-word">…</div>
     </div>
 
+    <!-- Restart turn button -->
+    <div style="width:100%; display:flex; justify-content:center; margin-bottom:4px;">
+      <button class="btn-restart-turn" onclick="UI.restartTurn()">
+        🔄 התחל מחדש
+      </button>
+    </div>
+
     <!-- Action buttons -->
     <div class="action-btns">
       <button class="btn btn-red" id="btn-wrong" onclick="UI.onWrong()">
@@ -140,21 +147,28 @@
     </div>
 
     <div class="divider"></div>
-    <h3 style="margin-bottom:12px;">ניקוד מצטבר</h3>
+    <h3 style="margin-bottom:12px; font-size:1.1rem; color:var(--text-muted);">🏆 ניקוד מצטבר</h3>
 
-    <div class="scores-table">
-      <div class="team-row" id="summary-row0">
-        <span id="summary-team0-name">קבוצה 1</span>
-        <span class="team-score" id="summary-team0-score">0</span>
+    <div class="cumulative-scores">
+      <div class="cumul-item" id="summary-row0">
+        <div class="cumul-name" id="summary-team0-name">קבוצה 1</div>
+        <div class="cumul-score" id="summary-team0-score">0</div>
+        <div class="cumul-label">נקודות</div>
       </div>
-      <div class="team-row" id="summary-row1">
-        <span id="summary-team1-name">קבוצה 2</span>
-        <span class="team-score" id="summary-team1-score">0</span>
+      <div class="cumul-divider"></div>
+      <div class="cumul-item" id="summary-row1">
+        <div class="cumul-name" id="summary-team1-name">קבוצה 2</div>
+        <div class="cumul-score" id="summary-team1-score">0</div>
+        <div class="cumul-label">נקודות</div>
       </div>
     </div>
 
     <button class="btn btn-primary" id="next-turn-btn" onclick="UI.showWhoExplains()">
       תור הבא ▶
+    </button>
+
+    <button class="btn btn-outline btn-small" style="margin-top:10px;" onclick="UI.openEditPlayers()">
+      ✏️ ערוך שחקנים
     </button>
   </div>
 
@@ -184,6 +198,41 @@
     </button>
   </div>
 
+
+  <!-- ====================== MODAL: EDIT PLAYERS ====================== -->
+  <div class="modal-overlay" id="modal-edit-players">
+    <div class="modal-box">
+      <h3 style="margin-bottom:16px; font-size:1.3rem;">✏️ ערוך שחקנים</h3>
+
+      <!-- Team 0 -->
+      <div class="modal-team-section">
+        <h4 class="modal-team-title" id="modal-team0-name">קבוצה 1</h4>
+        <div class="modal-players-list" id="modal-players-0"></div>
+        <div class="add-player-row" style="margin-top:8px;">
+          <input type="text" id="modal-add-0" placeholder="שחקן חדש" maxlength="15"
+                 onkeydown="if(event.key==='Enter') UI.addPlayerInGame(0)" />
+          <button onclick="UI.addPlayerInGame(0)">+</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Team 1 -->
+      <div class="modal-team-section">
+        <h4 class="modal-team-title" id="modal-team1-name">קבוצה 2</h4>
+        <div class="modal-players-list" id="modal-players-1"></div>
+        <div class="add-player-row" style="margin-top:8px;">
+          <input type="text" id="modal-add-1" placeholder="שחקן חדש" maxlength="15"
+                 onkeydown="if(event.key==='Enter') UI.addPlayerInGame(1)" />
+          <button onclick="UI.addPlayerInGame(1)">+</button>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-small" style="margin-top:16px;" onclick="UI.closeEditPlayers()">
+        ✅ שמור וסגור
+      </button>
+    </div>
+  </div>
 
   <!-- Scripts -->
   <script src="js/words.js"></script>
