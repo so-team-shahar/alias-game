@@ -191,7 +191,6 @@ const UI = (() => {
     getPlayers(n).push(name);
     input.value = '';
     renderPlayers(n);
-    input.focus();
   }
 
   function removePlayer(n, i) {
@@ -204,6 +203,9 @@ const UI = (() => {
   }
 
   function startGame() {
+    // סגור keyboard ב-mobile לפני מעבר
+    document.activeElement && document.activeElement.blur();
+
     const t1Name = document.getElementById('team1-name').value.trim() || 'קבוצה 1';
     const t2Name = document.getElementById('team2-name').value.trim() || 'קבוצה 2';
     const target = parseInt(document.getElementById('target-score').value) || 40;
