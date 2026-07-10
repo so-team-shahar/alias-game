@@ -482,6 +482,11 @@ h3 {
   transition: color 0.5s;
   line-height: 1;
   text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  text-align: center;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #timer-display.urgent {

@@ -31,7 +31,7 @@ const TimerModule = (() => {
       gain.connect(ctx.destination);
       osc.type = 'sine';
       osc.frequency.value = urgent ? 1000 : 800;
-      gain.gain.setValueAtTime(urgent ? 0.6 : 0.5, ctx.currentTime);
+      gain.gain.setValueAtTime(urgent ? 1.0 : 0.8, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
       osc.start(ctx.currentTime);
       osc.stop(ctx.currentTime + 0.04);
@@ -51,7 +51,7 @@ const TimerModule = (() => {
         osc.type = 'sine';
         osc.frequency.value = freq;
         const t = ctx.currentTime + i * 0.15;
-        gain.gain.setValueAtTime(0.8, t);
+        gain.gain.setValueAtTime(1.0, t);
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
         osc.start(t);
         osc.stop(t + 0.15);
@@ -112,7 +112,7 @@ const TimerModule = (() => {
         osc.type = 'sine';
         osc.frequency.value = freq;
         const t = ctx.currentTime + i * 0.09;
-        gain.gain.setValueAtTime(0.7, t);
+        gain.gain.setValueAtTime(1.0, t);
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
         osc.start(t);
         osc.stop(t + 0.09);
@@ -133,7 +133,7 @@ const TimerModule = (() => {
         osc.type = 'sine';
         osc.frequency.value = freq;
         const t = ctx.currentTime + i * 0.11;
-        gain.gain.setValueAtTime(0.7, t);
+        gain.gain.setValueAtTime(1.0, t);
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
         osc.start(t);
         osc.stop(t + 0.11);
