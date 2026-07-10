@@ -89,6 +89,13 @@ const Game = (() => {
     }
   }
 
+  function discardCurrentWord(word) {
+    // Remove word from pool without scoring (used when timer runs out mid-word)
+    if (!word) return;
+    state.wordPool.pop();
+    state.usedWords.add(word);
+  }
+
   function endRound() {
     const roundScore = state.round.correct - state.round.wrong;
     state.teams[state.currentTeamIndex].score += roundScore;
@@ -140,6 +147,7 @@ const Game = (() => {
     startRound,
     nextWord,
     consumeWord,
+    discardCurrentWord,
     endRound,
     restartRound,
     getRoundScore,
@@ -341,6 +349,9 @@ const UI = (() => {
 
   function onTimeUp() {
     TimerModule.stop();
+    if (currentWord) {
+      Game.discardCurrentWord(currentWord); // remove mid-word from pool without scoring
+    }
     currentWord = null;
     roundSummaryData = Game.endRound();
     showSummary(roundSummaryData);
