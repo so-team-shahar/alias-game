@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="description" content="משחק אליאס בעברית — Local Multiplayer" />
+  <title>אליאס 🎯</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ====================== SCREEN 1: SETUP ====================== -->
+  <div class="screen" id="screen-setup">
+    <div class="logo">🎯</div>
+    <h1>אליאס</h1>
+    <p class="subtitle">מסבירים. מנחשים. מנצחים.</p>
+
+    <!-- Teams setup -->
+    <div class="teams-row">
+      <!-- Team 1 -->
+      <div class="team-setup">
+        <h4>קבוצה 1</h4>
+        <input type="text" id="team1-name" placeholder="שם הקבוצה" maxlength="20" />
+        <div class="players-list" id="team1-players"></div>
+        <div class="add-player-row">
+          <input type="text" id="team1-add" placeholder="שם שחקן"
+                 maxlength="15"
+                 onkeydown="UI.handlePlayerAddKey(event, 1)" />
+          <button onclick="UI.addPlayer(1)">+</button>
+        </div>
+      </div>
+
+      <!-- Team 2 -->
+      <div class="team-setup">
+        <h4>קבוצה 2</h4>
+        <input type="text" id="team2-name" placeholder="שם הקבוצה" maxlength="20" />
+        <div class="players-list" id="team2-players"></div>
+        <div class="add-player-row">
+          <input type="text" id="team2-add" placeholder="שם שחקן"
+                 maxlength="15"
+                 onkeydown="UI.handlePlayerAddKey(event, 2)" />
+          <button onclick="UI.addPlayer(2)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="settings-row">
+      <label for="target-score">🏆 נקודות לניצחון</label>
+      <input type="number" id="target-score" value="40" min="10" max="200" step="5" />
+    </div>
+
+    <div class="settings-row" style="opacity:0.6; cursor:default;">
+      <label>⏱️ זמן לתור</label>
+      <span style="font-size:1.2rem; font-weight:700; color:var(--text);">60 שנ'</span>
+    </div>
+
+    <button class="btn btn-primary" onclick="UI.startGame()" style="margin-top:12px;">
+      התחל משחק ▶
+    </button>
+  </div>
+
+
+  <!-- ====================== SCREEN 2: WHO EXPLAINS ====================== -->
+  <div class="screen" id="screen-who">
+    <div class="turn-banner">
+      <div class="turn-label">תור של</div>
+      <div class="team-name-display" id="whose-turn-name">קבוצה 1</div>
+    </div>
+
+    <h3 id="explainer-hint">מי מסביר הפעם?</h3>
+
+    <div class="players-grid" id="players-grid"></div>
+
+    <div style="width:100%; margin-top: auto; padding-top: 16px;">
+      <button class="btn btn-primary" onclick="UI.startTurn()">
+        מוכנים! התחל תור ⚡
+      </button>
+    </div>
+  </div>
+
+
+  <!-- ====================== SCREEN 3: ACTIVE TURN ====================== -->
+  <div class="screen" id="screen-turn">
+
+    <!-- Timer -->
+    <div class="timer-container">
+      <div class="timer-ring">
+        <svg width="140" height="140" viewBox="0 0 140 140">
+          <circle class="ring-bg" cx="70" cy="70" r="65" />
+          <circle class="ring-progress" id="ring-progress" cx="70" cy="70" r="65" />
+        </svg>
+        <div id="timer-display">60</div>
+      </div>
+      <div class="score-ticker" style="margin-top:8px;">
+        <span class="tick-correct" id="ticker-correct">✅ 0</span>
+        <span>|</span>
+        <span class="tick-wrong" id="ticker-wrong">❌ 0</span>
+      </div>
+    </div>
+
+    <!-- Current word -->
+    <div class="word-card">
+      <div id="current-word">…</div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="action-btns">
+      <button class="btn btn-red" id="btn-wrong" onclick="UI.onWrong()">
+        ❌<br/><span style="font-size:1rem; font-weight:500;">דלג (−1)</span>
+      </button>
+      <button class="btn btn-green" id="btn-correct" onclick="UI.onCorrect()">
+        ✅<br/><span style="font-size:1rem; font-weight:500;">נוחש (+1)</span>
+      </button>
+    </div>
+  </div>
+
+
+  <!-- ====================== SCREEN 4: SUMMARY ====================== -->
+  <div class="screen" id="screen-summary">
+    <h2>סיכום התור</h2>
+
+    <div class="round-stats">
+      <div class="stat-box green">
+        <div class="stat-num" id="summary-correct">0</div>
+        <div class="stat-label">נוחשו ✅</div>
+      </div>
+      <div class="stat-box red">
+        <div class="stat-num" id="summary-wrong">0</div>
+        <div class="stat-label">דולגו ❌</div>
+      </div>
+    </div>
+
+    <div class="round-total">
+      <div class="total-formula" id="round-formula">+0 − 0 = 0 נקודות</div>
+      <div class="total-score" id="round-total-pts"></div>
+    </div>
+
+    <div class="divider"></div>
+    <h3 style="margin-bottom:12px;">ניקוד מצטבר</h3>
+
+    <div class="scores-table">
+      <div class="team-row" id="summary-row0">
+        <span id="summary-team0-name">קבוצה 1</span>
+        <span class="team-score" id="summary-team0-score">0</span>
+      </div>
+      <div class="team-row" id="summary-row1">
+        <span id="summary-team1-name">קבוצה 2</span>
+        <span class="team-score" id="summary-team1-score">0</span>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="next-turn-btn" onclick="UI.showWhoExplains()">
+      תור הבא ▶
+    </button>
+  </div>
+
+
+  <!-- ====================== SCREEN 5: WIN ====================== -->
+  <div class="screen" id="screen-win">
+    <div class="trophy">🏆</div>
+    <div class="win-title">ניצחה!</div>
+    <div class="win-name" id="winner-name">קבוצה 1</div>
+
+    <div class="divider"></div>
+    <h3 style="margin-bottom: 12px;">ניקוד סופי</h3>
+
+    <div class="scoreboard" style="margin-bottom: 32px;">
+      <div class="score-item">
+        <div class="s-name" id="win-team0-name">קבוצה 1</div>
+        <div class="s-score" id="win-team0-score">0</div>
+      </div>
+      <div class="score-item">
+        <div class="s-name" id="win-team1-name">קבוצה 2</div>
+        <div class="s-score" id="win-team1-score">0</div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="UI.resetGame()">
+      🔄 משחק חדש
+    </button>
+  </div>
+
+
+  <!-- Scripts -->
+  <script src="js/words.js"></script>
+  <script src="js/timer.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
