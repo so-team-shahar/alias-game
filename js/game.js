@@ -396,7 +396,9 @@ const UI = (() => {
   }
 
   function closeEditPlayers() {
-    document.getElementById('modal-edit-players').classList.remove('open');
+    const modal = document.getElementById('modal-edit-players');
+    modal.classList.remove('open');
+    modal.style.display = '';  // reset מפורש למניעת בעיות iOS Safari
   }
 
   function renderModalPlayers(teamIdx) {
